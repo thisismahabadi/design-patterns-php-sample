@@ -2,26 +2,26 @@
 
 interface PlayerFactory
 {
-	public function getFile();
-	public function processFile();
-	public function play();
+	public function getFile(string $fileName);
+	public function processFile(File $file);
+	public function player(Process $process);
 }
 
 class AudioFactory implements PlayerFactory
 {
-	public function getFile()
+	public function getFile(string $fileName)
 	{
-		return new AudioFile;
+		return new AudioFile($fileName);
 	}
 
-	public function processFile()
+	public function processFile(File $file)
 	{
-		return new AudioProcess;
+		return new AudioProcess($file);
 	}
 
-	public function play()
+	public function player(Process $process)
 	{
-		return new AudioPlayer;
+		return new AudioPlayer($process);
 	}
 }
 
@@ -32,9 +32,16 @@ interface File
 
 class AudioFile implements File
 {
+    private $fileName;
+
+    public function __construct(string $fileName)
+    {
+        $this->fileName = $fileName;
+    }
+
 	public function getFile()
 	{
-		echo 'Get File';
+		return $this->fileName;
 	}
 }
 
@@ -45,9 +52,16 @@ interface Process
 
 class AudioProcess implements Process
 {
+    private $file;
+
+    public function __construct(File $file)
+    {
+        $this->file = $file;
+    }
+
 	public function processFile()
 	{
-		echo 'Process File';
+		return "Music file " . $this->file->getFile() . " has been received";
 	}
 }
 
@@ -58,33 +72,38 @@ interface Player
 
 class AudioPlayer implements Player
 {
+    private $process;
+
+    public function __construct(Process $process)
+    {
+        $this->process = $process;
+    }
+
 	public function play()
 	{
-		echo 'Play';
+		return $this->process->processFile() . " and now is playing.";
 	}
 }
 
 class Media
 {
 	private $fileName;
-	private $fileFormat;
 
-	public function __construct($fileName, $fileFormat)
+	public function __construct($fileName)
 	{
 		$this->fileName = $fileName;
-		$this->fileFormat = $fileFormat;
 	}
 
 	public function play(PlayerFactory $playerFactory)
 	{
-		$playerFactory->getFile($this->fileName);
-		$playerFactory->processFile($this->fileFormat);
-		return $playerFactory->play();
+		$file = $playerFactory->getFile($this->fileName);
+		$process = $playerFactory->processFile($file);
+		$player = $playerFactory->player($process);
+		return $player->play();
 	}
 }
 
-$media = new Media('php', 'mp3');
+$media = new Media('php.mp3');
 $result = $media->play(new AudioFactory);
 
 var_dump($result);
-// echo $result;
