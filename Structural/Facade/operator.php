@@ -36,7 +36,7 @@ class Operator
 class Warehouse
 {
 	private $product;
-	private $inventory;
+	private $inventory = [];
 
 	public function __construct(Product $product)
 	{
