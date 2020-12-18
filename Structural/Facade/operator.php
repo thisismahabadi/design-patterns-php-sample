@@ -9,27 +9,28 @@ class Operator
 		$this->product = new Product;
 	}
 
-	public function sell(array $productData)
+	public function action(array $productData, string $actionType)
 	{
 		$product = $this->product
 			->create($productData['name'], $productData['color']);
 
 		$warehouse = new Warehouse($product);
-		$warehouse->remove();
+
+		switch ($actionType) {
+			case 'buy':
+				$warehouse->add();
+				break;
+			case 'sell':
+				$warehouse->remove();
+				break;
+
+			default:
+				break;
+		}
 
 		return $warehouse->get($product->getId());
 	}
 
-	public function buy(array $productData)
-	{
-		$product = $this->product
-			->create($productData['name'], $productData['color']);
-
-		$warehouse = new Warehouse($product);
-		$warehouse->add();
-
-		return $warehouse->get($product->getId());
-	}
 }
 
 class Warehouse
@@ -114,10 +115,10 @@ function clientCode(Operator $operator)
 {
 	$productData = ['name' => 'Monitor', 'color' => 'Black'];
 
-	return $operator->sell($productData);
+	return $operator->action($productData, 'sell');
 
 	// Uncomment this line to buy a product from operator
-	// return $operator->buy($productData);
+	// return $operator->action($productData, 'buy');
 }
 
 echo clientCode(new Operator);
